@@ -2,6 +2,7 @@ import Alumno from "./models/alumno.js"
 import {sumar, restar, multiplicar, dividir} from "./modules/matematica.js"
 import {OMDBSearchByPage, OMDBSearchComplete, OMDBGetByImdbID} from
 "./modules/wrapper.js"
+import validacionesHelper from './modules/validacionesHelper.js'
 
 
 
@@ -42,26 +43,26 @@ app.get("/validarfecha/:ano/:mes/:dia",(req,res) =>{
 //Endpoints que reutilizan el módulo matemática.js
 
 app.get("/matematica/sumar" ,(req, res) =>{
-    const num1 = parseFloat(req.query.n1);
-    const num2 = parseFloat(req.query.n2);
+    const num1 = validacionesHelper.getIntegerOrDefault(req.query.n1);
+    const num2 = validacionesHelper.getIntegerOrDefault(req.query.n2);
     const resultado = sumar(num1,num2);
     res.status(200).send(`El resultado es: ${resultado}`);
 })
 app.get("/matematica/restar" ,(req, res) =>{
-    const num1 = parseFloat(req.query.n1);
-    const num2 = parseFloat(req.query.n2);
+    const num1 = validacionesHelper.getIntegerOrDefault(req.query.n1);
+    const num2 = validacionesHelper.getIntegerOrDefault(req.query.n2);
     const resultado = restar(num1,num2);
     res.status(200).send(`El resultado es: ${resultado}`);
 })
 app.get("/matematica/multiplicar" ,(req, res) =>{
-    const num1 = parseFloat(req.query.n1);
-    const num2 = parseFloat(req.query.n2);
+    const num1 = validacionesHelper.getIntegerOrDefault(req.query.n1);
+    const num2 = validacionesHelper.getIntegerOrDefault(req.query.n2);
     const resultado = multiplicar(num1,num2);
     res.status(200).send(`El resultado es: ${resultado}`);
 })
 app.get("/matematica/dividir" ,(req, res) =>{
-    const num1 = parseFloat(req.query.n1);
-    const num2 = parseFloat(req.query.n2);
+    const num1 = validacionesHelper.getIntegerOrDefault(req.query.n1);
+    const num2 = validacionesHelper.getIntegerOrDefault(req.query.n2);
     const resultado = dividir(num1,num2);
     res.status(200).send(`El resultado es: ${resultado}`);
     if (n1 == 0) {
@@ -72,21 +73,21 @@ app.get("/matematica/dividir" ,(req, res) =>{
 // Endpoints que reutilizan el módulo omdb-wrapper.js
 
 app.get("/omdb/omdbsearchbypage" , async (req, res) => {
-    const texto = req.query.search;
-    const page = req.query.p;
+    const texto = validacionesHelper.getStringOrDefault(req.query.search);
+    const page = validacionesHelper.getIntegerOrDefault(req.query.p);
     const resultado = await OMDBSearchByPage(texto,page);
-    res.status(200).send(`${resultado}`);
+    res.status(200).send(resultado);
 
 })
 app.get("/ombd/searchcomplete" , async (req,res) => {
-    const texto = req.query.search
+    const texto = validacionesHelper.getStringOrDefault(req.query.search);
     const resultado = await OMDBSearchComplete(texto);
     res.status(200).send(resultado);
 
 })
 app.get("/omdb/getbyomdbid?imdbID={imdb}" , async (req , res) => {
     
-    const texto = req.query.imdbID
+    const texto = validacionesHelper.getStringOrDefault(req.query.imdbID);
     const resultado = await OMDBGetByImdbID(texto);
     res.status(200).send(resultado);
 })
@@ -102,7 +103,7 @@ app.get("/alumnos", (req, res) => {
 })
 
 app.get("/alumnos/:dni", (req, res) => {
-    const dni = req.params.dni;
+    const dni = validacionesHelper.getIntegerOrDefault(req.params.dni);
     const alumno = alumnosArray.find(alumno => alumno.dni === dni);
 
     if (alumno) {
@@ -113,9 +114,9 @@ app.get("/alumnos/:dni", (req, res) => {
 });
 
 app.post("/alumnos", (req, res) => {
-    let nombre = req.body.username;
-    let dni = req.body.dni;
-    let edad = req.body.edad;
+    let nombre = validacionesHelper.getStringOrDefault(req.body.username);
+    let dni = validacionesHelper.getIntegerOrDefault(req.body.dni);
+    let edad = validacionesHelper.getIntegerOrDefault(req.body.edad);
     let nuevoAlumno = new Alumno(nombre, dni, edad);
 
     if (!nombre || !dni || !edad) {
@@ -127,7 +128,7 @@ app.post("/alumnos", (req, res) => {
 });
 
 app.delete("/alumnos", (req, res) => {
-    const dni = req.body.dni;
+    const dni = validacionesHelper.getIntegerOrDefault(req.body.dni);
     let dniBuscado = -1;
     dniBuscado = alumnosArray.find(alumno => alumno.dni === dni);
 
